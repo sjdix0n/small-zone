@@ -292,9 +292,10 @@ Vagrant.configure("2") do |config|
 
   #Generating Ansible Host File at following location:
   #    ./.vagrant/provisioners/ansible/inventory/vagrant_ansible_inventory
-  #config.vm.provision "ansible" do |ansible|
-  #  ansible.playbook = "./helper_scripts/empty_playbook.yml"
-  #end
+  config.vm.provision "ansible" do |ansible|
+    ansible.playbook = "./helper_scripts/empty_playbook.yml"
+#    ansible.playbook = "./playbook.yml"
+  end
 
 
   ##### DEFINE VM for leaf1 #####
@@ -476,9 +477,7 @@ Vagrant.configure("2") do |config|
     vsrx1.vm.network :forwarded_port, guest: 22, host: 12203, id: 'ssh'
     # link for eth1 --> leaf1:swp1
     vsrx1.vm.network "private_network", 
-                      virtualbox__intnet: "#{wbid}_net15",
-                      ip: "10.0.1.1", 
-                      netmask: "255.255.255.0"
+                      virtualbox__intnet: "#{wbid}_net15"
     # link for eth3 --> vsrx2:eth3
     vsrx1.vm.network "private_network", 
                       virtualbox__intnet: "#{wbid}_net6",
@@ -500,9 +499,7 @@ Vagrant.configure("2") do |config|
     vsrx2.vm.network :forwarded_port, guest: 22, host: 12204, id: 'ssh'
     # link for eth1 --> leaf2:swp1
     vsrx2.vm.network "private_network", 
-                      virtualbox__intnet: "#{wbid}_net10",
-                      ip: "10.0.1.2", 
-                      netmask: "255.255.255.0"
+                      virtualbox__intnet: "#{wbid}_net10"
     # link for eth3 --> vsrx1:eth3
     vsrx2.vm.network "private_network", 
                       virtualbox__intnet: "#{wbid}_net6",

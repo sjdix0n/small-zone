@@ -1,0 +1,5 @@
+loopbackip: 10.2.2.2
+nodemgmtmplsip: 10.42.254.2/24
+nodemgmtmplsvlan: 775
+mplspeerip: 10.1.1.1
+sshport: 12204

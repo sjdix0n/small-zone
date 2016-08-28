@@ -3,3 +3,9 @@ bondport1: "swp40"
 bondport2: "swp50"
 bridgevids: "700-799"
 bridgename: "bridge1"
+nodemgmtvrf: "NODE-MGMT"
+nodemgmtas: 65042
+mplsas: 65000
+pkg_dir: packages
+log_dir: logs
+build_dir: build
