@@ -1,0 +1,23 @@
+graph dc1 {
+ "leaf1" [function="leaf" config="./helper_scripts/extra_switch_config.sh"]
+ "leaf2" [function="leaf" config="./helper_scripts/extra_switch_config.sh"]
+ "server1" [function="host" config="./helper_scripts/extra_server_config.sh"]
+ "vsrx1" [function="host" os="juniper/ffp-12.1X47-D20.7-packetmode" memory="1024"]
+ "vsrx2" [function="host" os="juniper/ffp-12.1X47-D20.7-packetmode" memory="1024"]
+ "node1" [function="fake"]
+   "leaf1":"swp40" -- "leaf2":"swp40"
+   "leaf1":"swp50" -- "leaf2":"swp50"
+   "vsrx1":"eth1" -- "leaf1":"swp1"
+   "vsrx2":"eth1" -- "leaf2":"swp1"
+   "vsrx2":"eth3" -- "vsrx1":"eth3"
+   "server1":"eth1" -- "leaf1":"swp10"
+   "server1":"eth2" -- "leaf2":"swp10"
+   "node1":"swp1" -- "leaf1":"swp11"
+   "node1":"swp2" -- "leaf2":"swp11"
+   "node1":"swp3" -- "leaf1":"swp12"
+   "node1":"swp4" -- "leaf2":"swp12"
+   "node1":"swp5" -- "leaf1":"swp13"
+   "node1":"swp6" -- "leaf2":"swp13"
+   "node1":"swp7" -- "leaf1":"swp14"
+   "node1":"swp8" -- "leaf2":"swp14" 
+}

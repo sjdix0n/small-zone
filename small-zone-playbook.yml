@@ -1,0 +1,16 @@
+---
+- hosts: ["leaf1", "leaf2"]
+  vars:
+  user: cumulus
+  become: yes
+  become_method: sudo
+  tasks:
+  - name: write the network config file
+    template: src=small-zone.j2 dest=/etc/network/interfaces
+    notify:
+    - restart networking
+  - name: ensure networking is running
+    service: name=networking state=started
+  handlers:
+    - name: restart networking
+      service: name=networking state=restarted

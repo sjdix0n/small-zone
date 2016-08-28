@@ -1,0 +1,49 @@
+
+auto lo
+iface lo inet loopback
+
+auto vagrant
+iface vagrant inet dhcp
+
+auto {{ bridgename }}
+iface {{ bridgename }}
+      bridge-vlan-aware yes
+      bridge-ports glob swp1 swp10 swp11 swp12 swp13 swp14 {{ bondname }}
+      bridge-stp on
+      bridge-vids {{ bridgevids }}
+
+auto swp1
+iface swp1
+      bridge-access 700
+
+auto swp10
+iface swp10
+      bridge-access 700
+
+auto swp11
+iface swp11
+      mstpctl-portpathcost 10
+      mstpctl-portnetwork yes
+
+auto swp12
+iface swp12
+      mstpctl-portpathcost 10
+      mstpctl-portnetwork yes
+
+auto swp13
+iface swp13
+      mstpctl-portpathcost 10
+      mstpctl-portnetwork yes
+
+auto swp14
+iface swp14
+      mstpctl-portpathcost 10
+      mstpctl-portnetwork yes
+
+auto {{ bondname }}
+iface {{ bondname }}
+   bond-slaves glob {{ bondport1 }} {{bondport2 }}
+
+auto {{ bridgename }}.700
+iface {{ bridgename }}.700
+	address {{ v700v4 }}

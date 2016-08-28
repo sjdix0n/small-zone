@@ -1,0 +1,5 @@
+bondname: "bond0"
+bondport1: "swp40"
+bondport2: "swp50"
+bridgevids: "700-799"
+bridgename: "bridge1"
