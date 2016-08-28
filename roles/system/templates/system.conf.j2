@@ -1,0 +1,37 @@
+delete interfaces ge-0/0/1 
+set system syslog file PROTO-EVENTS.log any any
+set system syslog file PROTO-EVENTS.log match "LINK_DOWN|LINK_UP|RPD_ISIS|RPD_OSPF|RPD_LDP|RPD_RSVP|RPD_MPLS_LSP|BFDD_TRAP_STATE|RPD_PIM|RPD_BGP_NEIGHBOR_STATE_CHANGED|VRRPD_NEW|lacp_update_state_userspace"
+set system syslog file PROTO-EVENTS.log archive size 1m
+set system syslog file PROTO-EVENTS.log archive files 10
+set system syslog file PROTO-EVENTS.log archive world-readable
+set protocols lldp interface all 
+set interfaces ge-0/0/1 flexible-vlan-tagging
+set interfaces ge-0/0/1 unit {{ nodemgmtmplsvlan }} vlan-id {{ nodemgmtmplsvlan }}
+set interfaces ge-0/0/1 unit {{ nodemgmtmplsvlan }} family inet address {{ nodemgmtmplsip }}
+set interfaces lo0 unit 0 family inet address {{ loopbackip }}/32
+set interfaces ge-0/0/3 unit 0 family mpls
+set protocols mpls interface ge-0/0/2.0
+set protocols ldp interface ge-0/0/2.0
+set protocols ldp interface lo0.0
+set routing-options router-id {{ loopbackip }}
+set routing-options autonomous-system {{ mplsas }}
+set protocols ospf traffic-engineering
+set protocols ospf area 0.0.0.0 interface ge-0/0/2.0
+set protocols ospf area 0.0.0.0 interface lo0.0 passive
+set protocols bgp log-updown
+set protocols bgp group iBGP_MESH type internal
+set protocols bgp group iBGP_MESH family inet unicast
+set protocols bgp group iBGP_MESH family inet-vpn unicast
+set protocols bgp group iBGP_MESH family inet6-vpn unicast
+set protocols bgp group iBGP_MESH family l2vpn signaling
+set protocols bgp group iBGP_MESH peer-as {{ mplsas }}
+set protocols bgp group iBGP_MESH neighbor {{ mplspeerip }}
+set protocols bgp group iBGP_MESH local-address {{ loopbackip }}
+set routing-instances NODE_MPLS instance-type virtual-router
+set routing-instances NODE_MPLS interface ge-0/0/1.{{ nodemgmtmplsvlan }}
+set routing-instances NODE_MPLS protocols bgp log-updown 
+set routing-instances NODE_MPLS protocols bgp group NODE_MGMT type external
+set routing-instances NODE_MPLS protocols bgp group NODE_MGMT peer-as {{ nodemgmtas }}
+set routing-instances NODE_MPLS protocols bgp group NODE_MGMT neighbor 10.42.254.254
+set routing-instances NODE_MPLS protocols bgp group NODE_MGMT neighbor 10.42.254.253
+set routing-instances NODE_MPLS routing-options autonomous-system {{ mplsas }}

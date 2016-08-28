@@ -1,0 +1,119 @@
+---
+# =========================================================
+# Cumulus conifg
+# =========================================================
+ - name: Cumulus
+   hosts: ["leaf1", "leaf2"]
+   vars:
+   user: cumulus
+   become: yes
+   become_method: sudo
+   tasks:
+   - name: write the network config file
+     template: src=small-zone.j2 dest=/etc/network/interfaces
+     notify:
+     - restart networking
+   - name: ensure networking is running
+     service: name=networking state=started
+   handlers:
+     - name: restart networking
+       service: name=networking state=restarted
+# =========================================================
+# Cumulus vrf BGP
+# =========================================================
+ - name: Cumulus BGP
+   hosts: ["leaf1", "leaf2"]
+   vars:
+   user: cumulus
+   become: yes
+   become_method: sudo
+   tasks:
+   - name: write the quagga config file
+     template: src=./roles/cumulus-bgp/templates/quagga.j2 dest=/etc/quagga/Quagga.conf
+     notify:
+     - enable bgp 
+     - restart quagga
+   - name: ensure quagga is running
+     service: name=quagga state=started
+   handlers:
+     - name: enable bgp
+       template: src=./roles/cumulus-bgp/templates/daemons.j2 dest=/etc/quagga/daemons
+     - name: restart quagga
+       service: name=quagga state=restarted
+# =========================================================
+# Juniper
+# =========================================================
+ - name: Creating build directories for each host
+   hosts: ["vsrx1", "vsrx2"]
+   connection: local
+   gather_facts: no
+   tasks:
+      - name: set variables on a per host basis
+        set_fact: 
+          build_dir: "{{ build_dir }}/{{ inventory_hostname }}/tmp"
+          junos_conf: "{{ build_dir }}/{{ inventory_hostname}}/junos.set"
+      - name: remove host build temp directory
+        file: path={{ build_dir }} state=absent
+      - name: create host build temp directory
+        file: path={{ build_dir }} state=directory
+      - name: create logs directory 
+        file: path={{ log_dir }} state=directory
+
+# =========================================================
+# Finish by assembling config snippets into single file
+# =========================================================
+
+ - name: Collect facts from devices
+   hosts: ["vsrx1", "vsrx2"]
+   roles:       
+    - Juniper.junos
+    - system
+   connection: local
+
+   tasks:
+    - name: Render initial configuration
+      assemble: src={{ build_dir }} dest={{ junos_conf }}
+
+# =========================================================
+# Role based config template building
+# =========================================================
+
+ - name: Template-build System for devices
+   hosts: ["vsrx1", "vsrx2"]
+   connection: local
+   gather_facts: no
+   roles:
+      - system
+
+# =========================================================
+# Finish by assembling config snippets into single file
+# =========================================================
+
+ - name: Creating final junos.conf
+   hosts: ["vsrx1", "vsrx2"]
+   connection: local
+   gather_facts: no
+   tasks:
+      - name: assembling configfurations
+        assemble: src={{ build_dir }} dest={{ junos_conf }}
+
+# =========================================================
+# Publish configuration to devices
+# =========================================================
+
+ - name: "Config:Merge"
+   hosts: ["vsrx1", "vsrx2"]
+   connection: local
+   gather_facts: no
+   roles:
+      - Juniper.junos
+   tasks:
+      - name: load-merge config file
+        junos_install_config:
+          overwrite='no' 
+          host={{ ansible_ssh_host }}
+          port={{ sshport }}
+          user=root
+          passwd=Juniper
+          file={{ junos_conf }}
+          logfile={{ log_dir }}/{{ inventory_hostname }}.log

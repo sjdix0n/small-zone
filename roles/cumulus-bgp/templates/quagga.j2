@@ -1,0 +1,21 @@
+log file /var/log/quagga/quagga.log
+log timestamp precision 6
+username cumulus nopassword
+!
+router bgp {{ nodemgmtas }} vrf {{ nodemgmtvrf }}
+ bgp router-id {{ v775v4 }}
+ no bgp default ipv4-unicast
+ timers bgp 60 20
+ neighbor 10.42.254.1 remote-as {{ mplsas }}
+ neighbor 10.42.254.2 remote-as {{ mplsas }}
+ !
+ address-family ipv4 unicast
+  redistribute static
+  network 10.42.0.0/22
+  neighbor 10.42.254.1 activate
+  neighbor 10.42.254.2 activate
+ exit-address-family
+!
+ip route 10.42.252.0/22 Null0 vrf NODE-MGMT
+!
+line vty
