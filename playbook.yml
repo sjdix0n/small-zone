@@ -10,7 +10,7 @@
    become_method: sudo
    tasks:
    - name: write the network config file
-     template: src=small-zone.j2 dest=/etc/network/interfaces
+     template: src=./roles/cumulus-interfaces/templates/interfaces.j2 dest=/etc/network/interfaces
      notify:
      - restart networking
    - name: ensure networking is running
@@ -117,3 +117,22 @@
           passwd=Juniper
           file={{ junos_conf }}
           logfile={{ log_dir }}/{{ inventory_hostname }}.log
+# =========================================================
+# server interface config
+# =========================================================
+# - name: Server interface
+#   hosts: server1
+#   vars:
+#   user: root
+#   become: yes
+#   become_method: sudo
+#   tasks:
+#   - name: write the network config file
+#     template: src=./roles/server-interfaces/templates/interfaces.j2 dest=/etc/network/interfaces
+#     notify:
+#     - restart networking
+#   - name: ensure networking is running
+#     service: name=networking state=started
+#   handlers:
+#     - name: restart networking
+#       service: name=networking state=restarted

@@ -1,0 +1,14 @@
+
+auto lo
+iface lo inet loopback
+
+auto vagrant
+iface vagrant inet dhcp
+
+auto {{ eth }}
+iface {{ eth }}
+      address 192.168.1.10
+      netmask 255.255.255.0
+      gateway 192.168.1.1
+      
+

@@ -5,11 +5,12 @@ set system syslog file PROTO-EVENTS.log archive size 1m
 set system syslog file PROTO-EVENTS.log archive files 10
 set system syslog file PROTO-EVENTS.log archive world-readable
 set protocols lldp interface all 
-set interfaces ge-0/0/1 flexible-vlan-tagging
+set interfaces ge-0/0/1 vlan-tagging
+set interfaces ge-0/0/1 encapsulation flexible-ethernet-services
 set interfaces ge-0/0/1 unit {{ nodemgmtmplsvlan }} vlan-id {{ nodemgmtmplsvlan }}
 set interfaces ge-0/0/1 unit {{ nodemgmtmplsvlan }} family inet address {{ nodemgmtmplsip }}
 set interfaces lo0 unit 0 family inet address {{ loopbackip }}/32
-set interfaces ge-0/0/3 unit 0 family mpls
+set interfaces ge-0/0/2 unit 0 family mpls
 set protocols mpls interface ge-0/0/2.0
 set protocols ldp interface ge-0/0/2.0
 set protocols ldp interface lo0.0
@@ -27,11 +28,33 @@ set protocols bgp group iBGP_MESH family l2vpn signaling
 set protocols bgp group iBGP_MESH peer-as {{ mplsas }}
 set protocols bgp group iBGP_MESH neighbor {{ mplspeerip }}
 set protocols bgp group iBGP_MESH local-address {{ loopbackip }}
-set routing-instances NODE_MPLS instance-type virtual-router
+set routing-instances NODE_MPLS instance-type vrf
 set routing-instances NODE_MPLS interface ge-0/0/1.{{ nodemgmtmplsvlan }}
+set routing-instances NODE_MPLS route-distinguisher {{ nodemgmtrd }}
+set routing-instances NODE_MPLS vrf-target target:{{ nodemgmtrd }}
+set routing-instances NODE_MPLS vrf-table-label
 set routing-instances NODE_MPLS protocols bgp log-updown 
 set routing-instances NODE_MPLS protocols bgp group NODE_MGMT type external
 set routing-instances NODE_MPLS protocols bgp group NODE_MGMT peer-as {{ nodemgmtas }}
 set routing-instances NODE_MPLS protocols bgp group NODE_MGMT neighbor 10.42.254.254
 set routing-instances NODE_MPLS protocols bgp group NODE_MGMT neighbor 10.42.254.253
 set routing-instances NODE_MPLS routing-options autonomous-system {{ mplsas }}
+set routing-instances PUBLIC_INTERNET instance-type vpls
+set routing-instances PUBLIC_INTERNET interface lt-0/0/0.0
+set routing-instances PUBLIC_INTERNET interface ge-0/0/1.{{ publicnetvlan }}
+set routing-instances PUBLIC_INTERNET route-distinguisher {{ publicnetrd }}
+set routing-instances PUBLIC_INTERNET vrf-target target:{{ publicnetrd }}
+set routing-instances PUBLIC_INTERNET protocols vpls site-range 2
+set routing-instances PUBLIC_INTERNET protocols vpls no-tunnel-services
+set routing-instances PUBLIC_INTERNET protocols vpls site PUBLIC_INTERNET site-identifier 1
+set routing-instances PUBLIC_INTERNET protocols vpls site PUBLIC_INTERNET multi-homing
+set routing-instances PUBLIC_INTERNET protocols vpls site PUBLIC_INTERNET site-preference {{ vplspref }}
+set interfaces lt-0/0/0 unit 0 encapsulation vlan-vpls
+set interfaces lt-0/0/0 unit 0 vlan-id {{ publicnetvlan }}
+set interfaces lt-0/0/0 unit 0 peer-unit 1
+set interfaces lt-0/0/0 unit 1 encapsulation vlan
+set interfaces lt-0/0/0 unit 1 vlan-id {{ publicnetvlan }}
+set interfaces lt-0/0/0 unit 1 peer-unit 0
+set interfaces lt-0/0/0 unit 1 family inet address {{ publicnetgw }}
+set interfaces ge-0/0/1 unit {{ publicnetvlan }} encapsulation vlan-vpls
+set interfaces ge-0/0/1 unit {{ publicnetvlan }} vlan-id {{ publicnetvlan }}

@@ -1,5 +1,5 @@
 ---
-- hosts: all
+- hosts: leaf1 
   user: vagrant
   gather_facts: no
   tasks:

@@ -509,60 +509,67 @@ Vagrant.configure("2") do |config|
 
 
   ##### DEFINE VM for server1 #####
-  config.vm.define "server1" do |device|
-    device.vm.hostname = "server1" 
-    device.vm.box = "boxcutter/ubuntu1404"
-    device.vm.provider "virtualbox" do |v|
-      v.name = "1472251425_server1"
-      v.memory = 512
-    end
-    #   see note here: https://github.com/pradels/vagrant-libvirt#synced-folders
-    device.vm.synced_folder ".", "/vagrant", disabled: true
-      # Shorten Boot Process - Applies to Ubuntu Only - remove \"Wait for Network\"
-      device.vm.provision :shell , inline: "sed -i 's/sleep [0-9]*/sleep 1/' /etc/init/failsafe.conf || true"
+#  config.vm.define "server1" do |device|
+#    device.vm.hostname = "server1" 
+#    device.vm.box = "boxcutter/ubuntu1404"
+#    device.vm.provider "virtualbox" do |v|
+#      v.name = "1472251425_server1"
+#      v.memory = 512
+#    end
+#    #   see note here: https://github.com/pradels/vagrant-libvirt#synced-folders
+#    device.vm.synced_folder ".", "/vagrant", disabled: true
+#      # Shorten Boot Process - Applies to Ubuntu Only - remove \"Wait for Network\"
+#      device.vm.provision :shell , inline: "sed -i 's/sleep [0-9]*/sleep 1/' /etc/init/failsafe.conf || true"
 
-    # NETWORK INTERFACES
-      # link for eth1 --> leaf1:swp10
-      device.vm.network "private_network", virtualbox__intnet: "#{wbid}_net1", auto_config: false , :mac => "443839000001"
-      
-      # link for eth2 --> leaf2:swp10
-      device.vm.network "private_network", virtualbox__intnet: "#{wbid}_net8", auto_config: false , :mac => "44383900000f"
+#    # NETWORK INTERFACES
+#      # link for eth1 --> leaf1:swp10
+#      device.vm.network "private_network", virtualbox__intnet: "#{wbid}_net1", auto_config: false , :mac => "443839000001"
+#      
+#      # link for eth2 --> leaf2:swp10
+#      device.vm.network "private_network", virtualbox__intnet: "#{wbid}_net8", auto_config: false , :mac => "44383900000f"
       
 
-    device.vm.provider "virtualbox" do |vbox|
-      vbox.customize ['modifyvm', :id, '--nicpromisc2', 'allow-all']
-      vbox.customize ['modifyvm', :id, '--nicpromisc3', 'allow-all']
-      vbox.customize ["modifyvm", :id, "--nictype1", "virtio"]
-    end
+#    device.vm.provider "virtualbox" do |vbox|
+#      vbox.customize ['modifyvm', :id, '--nicpromisc2', 'allow-all']
+#      vbox.customize ['modifyvm', :id, '--nicpromisc3', 'allow-all']
+#      vbox.customize ["modifyvm", :id, "--nictype1", "virtio"]
+#    end
 
     # Fixes "stdin: is not a tty" and "mesg: ttyname failed : Inappropriate ioctl for device"  messages --> https://github.com/mitchellh/vagrant/issues/1673
-    device.vm.provision :shell , inline: "(grep -q 'mesg n' /root/.profile 2>/dev/null && sed -i '/mesg n/d' /root/.profile && echo 'Ignore the previous error, fixing this now...') || true;"
+#    device.vm.provision :shell , inline: "(grep -q 'mesg n' /root/.profile 2>/dev/null && sed -i '/mesg n/d' /root/.profile && echo 'Ignore the previous error, fixing this now...') || true;"
 
 
 
     # Run the Config specified in the Node Attributes
-    device.vm.provision :shell , path: "./helper_scripts/extra_server_config.sh"
+#    device.vm.provision :shell , path: "./helper_scripts/extra_server_config.sh"
 
 
     # Install Rules for the interface re-map
-      device.vm.provision "file", source: "./helper_scripts/apply_udev.py", destination: "/home/vagrant/apply_udev.py"
-      device.vm.provision :shell , inline: "chmod 755 /home/vagrant/apply_udev.py"
+#      device.vm.provision "file", source: "./helper_scripts/apply_udev.py", destination: "/home/vagrant/apply_udev.py"
+#      device.vm.provision :shell , inline: "chmod 755 /home/vagrant/apply_udev.py"
 
-      device.vm.provision :shell , inline: "/home/vagrant/apply_udev.py -a 44:38:39:00:00:01 eth1"
-      device.vm.provision :shell , inline: "/home/vagrant/apply_udev.py -a 44:38:39:00:00:0f eth2"
+#      device.vm.provision :shell , inline: "/home/vagrant/apply_udev.py -a 44:38:39:00:00:01 eth1"
+#      device.vm.provision :shell , inline: "/home/vagrant/apply_udev.py -a 44:38:39:00:00:0f eth2"
 
-      device.vm.provision :shell , inline: "/home/vagrant/apply_udev.py -vm "
-      device.vm.provision :shell , inline: "/home/vagrant/apply_udev.py -s"
+#      device.vm.provision :shell , inline: "/home/vagrant/apply_udev.py -vm "
+#      device.vm.provision :shell , inline: "/home/vagrant/apply_udev.py -s"
 
 
 
     
     # Run Any Platform Specific Code and Apply the interface Re-map 
     #   (may or may not perform a reboot depending on platform)
-    device.vm.provision :shell , :inline => $script
+#    device.vm.provision :shell , :inline => $script
 
 
+#  end
+ 
+  config.vm.define :vyos1 do |vyos1|
+    vyos1.vm.box = "higebu/vyos-1.1.7-amd64"
+    vyos1.vm.network "private_network", ip: "192.168.1.10", virtualbox__intnet: "#{wbid}_net1"
+  config.vm.synced_folder ".", "/vagrant", disabled: true
   end
+
 
 
 

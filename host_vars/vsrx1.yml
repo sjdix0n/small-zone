@@ -3,3 +3,4 @@ nodemgmtmplsip: 10.42.254.1/24
 nodemgmtmplsvlan: 775
 mplspeerip: 10.2.2.2
 sshport: 12203
+vplspref: primary

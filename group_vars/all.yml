@@ -9,3 +9,7 @@ mplsas: 65000
 pkg_dir: packages
 log_dir: logs
 build_dir: build
+nodemgmtrd: 65000:1000
+publicnetrd: 65000:1001
+publicnetgw: 192.168.1.1/24
+publicnetvlan: 798
