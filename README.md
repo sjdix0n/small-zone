@@ -20,3 +20,7 @@ Box's
  - Cumulus VX 3.1.0
  - VyOS 1.1.7
  - vsrx 12.1X47-D20.7 packetmode
+
+Python
+ - pip install junos-eznc
+ - pip install cryptography==1.2.1 (fix for OSX pushing config via ssh to junos)
